@@ -1,8 +1,9 @@
 <?php
 session_start();
 
-function sanitize($conn, $input) {
-    return mysqli_real_escape_string($conn, htmlspecialchars(strip_tags(trim($input))));
+function sanitize($input) {
+    // PDO prepared statements handle SQL injection, so we only need XSS protection
+    return htmlspecialchars(strip_tags(trim($input)));
 }
 
 function is_logged_in() {
@@ -16,9 +17,8 @@ function redirect($location) {
 
 function get_user($conn, $user_id) {
     $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    return $stmt->get_result()->fetch_assoc();
+    $stmt->execute([$user_id]);
+    return $stmt->fetch();
 }
 
 function display_error($error) {
