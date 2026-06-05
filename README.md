@@ -97,4 +97,4 @@ Feel free to fork the repository and submit pull requests for any enhancements o
 
 ## License
 
-This project is licensed under the MIT License - feel free to use and modify it as needed.
+This project is developed by Debarati Pramanik - feel free to use and modify it as needed.
