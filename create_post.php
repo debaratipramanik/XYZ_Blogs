@@ -9,8 +9,8 @@ if(!is_logged_in()) {
 $error = '';
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $title = sanitize($conn, $_POST['title']);
-    $content = sanitize($conn, $_POST['content']);
+    $title = sanitize($_POST['title']);
+    $content = sanitize($_POST['content']);
     $user_id = $_SESSION['user_id'];
     $image_name = null;
 
@@ -43,9 +43,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if(empty($error)) {
             $stmt = $conn->prepare("INSERT INTO posts (user_id, title, content, image) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("isss", $user_id, $title, $content, $image_name);
             
-            if($stmt->execute()) {
+            if($stmt->execute([$user_id, $title, $content, $image_name])) {
                 redirect('index.php');
             } else {
                 $error = "Failed to create post.";
