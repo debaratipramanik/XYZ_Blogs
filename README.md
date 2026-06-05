@@ -2,6 +2,9 @@
 
 XYZ Blogs is a complete, custom-built Content Management System (CMS) and blogging platform powered by raw PHP, MySQLi, and Bootstrap 5. It is designed to be lightweight, easy to host, and fully responsive, featuring a modern and dynamic UI.
 
+## Hosted link
+https://xyz-blogs.onrender.com
+
 ## Features
 
 - **User Authentication:** Secure registration and login system utilizing `password_hash()` and `password_verify()`.
