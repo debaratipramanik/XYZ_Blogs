@@ -15,9 +15,8 @@ $query = "
 
 $stmt = $conn->prepare($query);
 $user_id = is_logged_in() ? $_SESSION['user_id'] : 0;
-$stmt->bind_param("ii", $user_id, $post_id);
-$stmt->execute();
-$post = $stmt->get_result()->fetch_assoc();
+$stmt->execute([$user_id, $post_id]);
+$post = $stmt->fetch();
 
 if(!$post) {
     redirect('index.php');
