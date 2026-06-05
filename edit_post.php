@@ -11,9 +11,8 @@ $post_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 // Fetch post
 $stmt = $conn->prepare("SELECT * FROM posts WHERE id = ?");
-$stmt->bind_param("i", $post_id);
-$stmt->execute();
-$post = $stmt->get_result()->fetch_assoc();
+$stmt->execute([$post_id]);
+$post = $stmt->fetch();
 
 if(!$post) {
     redirect('index.php');
@@ -25,8 +24,8 @@ if($post['user_id'] != $_SESSION['user_id']) {
 }
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $title = sanitize($conn, $_POST['title']);
-    $content = sanitize($conn, $_POST['content']);
+    $title = sanitize($_POST['title']);
+    $content = sanitize($_POST['content']);
     $image_name = $post['image']; // Default to old image
 
     if(empty($title) || empty($content)) {
@@ -62,9 +61,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if(empty($error)) {
             $stmt = $conn->prepare("UPDATE posts SET title = ?, content = ?, image = ? WHERE id = ?");
-            $stmt->bind_param("sssi", $title, $content, $image_name, $post_id);
             
-            if($stmt->execute()) {
+            if($stmt->execute([$title, $content, $image_name, $post_id])) {
                 redirect("post.php?id=$post_id");
             } else {
                 $error = "Failed to update post.";
