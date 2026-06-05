@@ -1,25 +1,23 @@
 <?php
 require_once 'config.php';
 
-// Create connection without DB name to create it first
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS);
+try {
+    // Connect directly to the database that your hosting provider already created
+    $dsn = "pgsql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME;
+    $conn = new PDO($dsn, DB_USER, DB_PASS);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    $sql = file_get_contents('schema.sql');
+    
+    // Execute schema
+    $conn->exec($sql);
+    echo "Tables created successfully in " . DB_NAME . "!";
+
+} catch(PDOException $e) {
+    echo "Error: " . $e->getMessage();
 }
 
-// Read schema.sql
-$sql = file_get_contents('schema.sql');
-
-// Execute multi query
-if ($conn->multi_query($sql)) {
-    echo "Database and tables created successfully!";
-} else {
-    echo "Error creating database: " . $conn->error;
-}
-
-$conn->close();
+$conn = null;
 ?>
 <br><br>
 <a href="index.php">Go to Homepage</a>
