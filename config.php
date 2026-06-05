@@ -9,5 +9,5 @@ define('DB_PASS', 'uCITM3bW7mOlVyZQLlwLhCF52qSF9WGs');
 define('DB_NAME', 'blog_db_wcgu');   
 
 // Optional: Base URL of your website (e.g., https://yourdomain.com/)
-define('BASE_URL', 'http://localhost/XYZ_Blogs/');
+define('https://xyz-blogs.onrender.com/', 'http://localhost/XYZ_Blogs/');
 ?>
