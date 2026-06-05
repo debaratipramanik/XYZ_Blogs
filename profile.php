@@ -5,9 +5,8 @@ require_once 'includes/functions.php';
 $profile_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
-$stmt->bind_param("i", $profile_id);
-$stmt->execute();
-$profile_user = $stmt->get_result()->fetch_assoc();
+$stmt->execute([$profile_id]);
+$profile_user = $stmt->fetch();
 
 if(!$profile_user) {
     redirect('index.php');
@@ -26,9 +25,8 @@ $query = "
 
 $stmt = $conn->prepare($query);
 $current_user_id = is_logged_in() ? $_SESSION['user_id'] : 0;
-$stmt->bind_param("ii", $current_user_id, $profile_id);
-$stmt->execute();
-$posts = $stmt->get_result();
+$stmt->execute([$current_user_id, $profile_id]);
+$posts = $stmt->fetchAll();
 
 ?>
 
@@ -51,8 +49,8 @@ $posts = $stmt->get_result();
         <h3 class="mb-4 text-center">Posts by <?= htmlspecialchars($profile_user['username']) ?></h3>
         
         <div class="row">
-            <?php if($posts->num_rows > 0): ?>
-                <?php while($post = $posts->fetch_assoc()): ?>
+            <?php if(count($posts) > 0): ?>
+                <?php foreach($posts as $post): ?>
                     <div class="col-md-6">
                         <div class="card post-card h-100">
                             <?php if($post['image']): ?>
@@ -75,7 +73,7 @@ $posts = $stmt->get_result();
                             </div>
                         </div>
                     </div>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             <?php else: ?>
                 <div class="col-12 text-center text-muted py-5">
                     <p>No posts to display.</p>
