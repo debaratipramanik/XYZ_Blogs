@@ -2,18 +2,17 @@
 require_once 'includes/db.php';
 require_once 'includes/functions.php';
 
-$query_string = isset($_GET['q']) ? sanitize($conn, $_GET['q']) : '';
+$query_string = isset($_GET['q']) ? sanitize($_GET['q']) : '';
 
 $users = [];
 $posts = [];
 
 if(!empty($query_string)) {
-    // Search Users
+    // Search Users (Postgres uses ILIKE for case-insensitive search, but LIKE works if exact. Let's use ILIKE for better UX)
     $search_term = "%$query_string%";
-    $stmt = $conn->prepare("SELECT id, username, profile_pic, bio FROM users WHERE username LIKE ?");
-    $stmt->bind_param("s", $search_term);
-    $stmt->execute();
-    $users = $stmt->get_result();
+    $stmt = $conn->prepare("SELECT id, username, profile_pic, bio FROM users WHERE username ILIKE ?");
+    $stmt->execute([$search_term]);
+    $users = $stmt->fetchAll();
 
     // Search Posts
     $post_query = "
@@ -22,14 +21,13 @@ if(!empty($query_string)) {
         (SELECT COUNT(*) FROM likes WHERE post_id = p.id AND user_id = ?) AS user_liked
         FROM posts p
         JOIN users u ON p.user_id = u.id
-        WHERE p.title LIKE ? OR p.content LIKE ?
+        WHERE p.title ILIKE ? OR p.content ILIKE ?
         ORDER BY p.created_at DESC
     ";
     $stmt = $conn->prepare($post_query);
     $user_id = is_logged_in() ? $_SESSION['user_id'] : 0;
-    $stmt->bind_param("iss", $user_id, $search_term, $search_term);
-    $stmt->execute();
-    $posts = $stmt->get_result();
+    $stmt->execute([$user_id, $search_term, $search_term]);
+    $posts = $stmt->fetchAll();
 }
 ?>
 
@@ -45,9 +43,9 @@ if(!empty($query_string)) {
             
             <!-- Users Results -->
             <h4 class="mb-3">Users</h4>
-            <?php if($users->num_rows > 0): ?>
+            <?php if(count($users) > 0): ?>
                 <div class="row mb-4">
-                    <?php while($user = $users->fetch_assoc()): ?>
+                    <?php foreach($users as $user): ?>
                         <div class="col-md-6 mb-3">
                             <div class="card h-100 shadow-sm">
                                 <div class="card-body d-flex align-items-center">
@@ -59,7 +57,7 @@ if(!empty($query_string)) {
                                 </div>
                             </div>
                         </div>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 </div>
             <?php else: ?>
                 <p class="text-muted mb-4">No users found.</p>
@@ -69,8 +67,8 @@ if(!empty($query_string)) {
 
             <!-- Posts Results -->
             <h4 class="mb-3 mt-4">Posts</h4>
-            <?php if($posts->num_rows > 0): ?>
-                <?php while($post = $posts->fetch_assoc()): ?>
+            <?php if(count($posts) > 0): ?>
+                <?php foreach($posts as $post): ?>
                     <div class="card post-card">
                         <div class="card-body">
                             <div class="d-flex align-items-center mb-3">
@@ -95,7 +93,7 @@ if(!empty($query_string)) {
                             </div>
                         </div>
                     </div>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             <?php else: ?>
                 <p class="text-muted">No posts found.</p>
             <?php endif; ?>
