@@ -14,9 +14,8 @@ $query = "
 
 $stmt = $conn->prepare($query);
 $user_id = is_logged_in() ? $_SESSION['user_id'] : 0;
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$posts = $stmt->get_result();
+$stmt->execute([$user_id]);
+$posts = $stmt->fetchAll();
 ?>
 
 <?php include 'includes/header.php'; ?>
@@ -25,8 +24,8 @@ $posts = $stmt->get_result();
     <div class="col-md-8">
         <h2 class="mb-4">Newsfeed</h2>
         
-        <?php if($posts->num_rows > 0): ?>
-            <?php while($post = $posts->fetch_assoc()): ?>
+        <?php if(count($posts) > 0): ?>
+            <?php foreach($posts as $post): ?>
                 <div class="card post-card">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
@@ -64,7 +63,7 @@ $posts = $stmt->get_result();
                         </div>
                     </div>
                 </div>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
         <?php else: ?>
             <div class="alert alert-info">No posts found. Be the first to <a href="create_post.php">create a post</a>!</div>
         <?php endif; ?>
