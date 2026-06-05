@@ -10,9 +10,8 @@ $post_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 // Fetch post to check ownership
 $stmt = $conn->prepare("SELECT user_id, image FROM posts WHERE id = ?");
-$stmt->bind_param("i", $post_id);
-$stmt->execute();
-$post = $stmt->get_result()->fetch_assoc();
+$stmt->execute([$post_id]);
+$post = $stmt->fetch();
 
 if($post && $post['user_id'] == $_SESSION['user_id']) {
     // Delete image if exists
@@ -22,8 +21,7 @@ if($post && $post['user_id'] == $_SESSION['user_id']) {
     
     // Delete post
     $del_stmt = $conn->prepare("DELETE FROM posts WHERE id = ?");
-    $del_stmt->bind_param("i", $post_id);
-    $del_stmt->execute();
+    $del_stmt->execute([$post_id]);
 }
 
 redirect('index.php');
