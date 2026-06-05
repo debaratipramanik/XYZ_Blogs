@@ -12,7 +12,7 @@ $error = '';
 $success = '';
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $bio = sanitize($conn, $_POST['bio']);
+    $bio = sanitize($_POST['bio']);
     $profile_pic = $user['profile_pic'];
 
     // Handle Image Upload
@@ -45,9 +45,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if(empty($error)) {
         $stmt = $conn->prepare("UPDATE users SET bio = ?, profile_pic = ? WHERE id = ?");
-        $stmt->bind_param("ssi", $bio, $profile_pic, $user_id);
         
-        if($stmt->execute()) {
+        if($stmt->execute([$bio, $profile_pic, $user_id])) {
             $success = "Profile updated successfully.";
             $user['bio'] = $bio;
             $user['profile_pic'] = $profile_pic;
